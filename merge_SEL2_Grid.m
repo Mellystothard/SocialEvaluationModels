@@ -1,4 +1,4 @@
-function ldat = merge_SEL2_Grid(wrkDir, batchPts, fitVer, dataSetCode, mergedFName)
+function ldat = merge_SEL2_Grid(fitVer, wrkDir, batchPts, dataSetCode, mergedFName)
 % merge_SEL2_Grid$$$_$$
 % put together the fitted variables from a number of fitting blocks in an array
 % and csv file. 
@@ -13,7 +13,7 @@ function ldat = merge_SEL2_Grid(wrkDir, batchPts, fitVer, dataSetCode, mergedFNa
         % the grid fits by SEL2_Grid04b* . 04b is cruciall be. we'll look for it in the fileNames to merge.
         fitVer;
     catch
-        fitVer = '04b_01';    
+        error('fitVer has to be provided - e.g. ''04b_01''');
     end
     try % start and end participant in each batch e.g. [1,20; 21,40; 41,60; 61,80; 81,100; 101,120; 121,136] ;
         batchPts;
@@ -31,16 +31,19 @@ function ldat = merge_SEL2_Grid(wrkDir, batchPts, fitVer, dataSetCode, mergedFNa
  %% Provided or potential working directories
     cwd = cd;  % make a backup of where we are. Good practice to return to this at the end :)
     try
-        cd(wrkDri)
+        cd(wrkDir)
     catch
         warning('Could not change to wrkDir provided - trying alternatives')
+        wrkDir = [];
     end
-    % set wrkDir and load correspondence of data order in A and B waves:
-    try
-       wrkDir = ['/home/michael/googledirs/MM/SocEvalModels_(not_git)_rough_work/Carlisi_team_work/' dataSetCode '_fit' fitVer];
-       cd(wrkDir);
-    catch
-       error(['Neither wrkDir provided nor the default, ' wrkDir ,' worked.']);
+    % attempt alternative wrkDir and load correspondence of data order in A and B waves:
+    if isempty(wrkDir)
+        try
+           wrkDir = ['/home/michael/googledirs/MM/SocEvalModels_(not_git)_rough_work/Carlisi_team_work/' dataSetCode '_fit' fitVer];
+           cd(wrkDir);
+        catch
+           error(['Neither wrkDir provided nor the default, ' wrkDir ,' worked.']);
+        end
     end
     
     ldatSample = dir(['*' fitVer(1:3) '*_' num2str(batchPts(1,1)) 'to*_ldat.mat']);  % Be careful not to load already merged!
